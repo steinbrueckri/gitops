@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: debug
+  name: debug
+  namespace: richard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: debug
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: debug
+    spec:
+      containers:
+      - image: steinbrueckri/debug
+        name: debug
+        ports:
+        - containerPort: 80
+        resources: {}
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: debug-service
+  namespace: richard
+spec:
+  selector:
+    app: debug
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: debug-ingress
+  namespace: richard
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: zeus.steinbrueck.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: debug-service
+            port:
+              number: 80
